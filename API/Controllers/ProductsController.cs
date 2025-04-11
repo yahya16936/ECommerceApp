@@ -1,4 +1,6 @@
-﻿using Core.Models;
+﻿
+using ECommerceAppModels.ViewModels;
+using Core.Services.Interface;
 using Infrastructure.DataContext;
 using Infrastructure.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -10,69 +12,57 @@ namespace API.Controllers
     [Route("api/[controller]")]
     public class ProductsController : ControllerBase
     {
-        private readonly StoreContext context;
+        private readonly IProductService _service;
 
-        public ProductsController(StoreContext context)
+        public ProductsController(IProductService service)
         {
-            this.context = context;
+            _service = service;
         }
+
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProducts()
         {
-            return await context.Products.ToListAsync();
+            return Ok(await _service.GetProducts());
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<Product>> GetProduct(int id)
+        public async Task<ActionResult<ProductDto>> GetProductById(int id)
         {
-            var product = await context.Products.FindAsync(id);
-
-            if(product == null)
-            {
-                return NotFound();
-            }
-
-            return product;
+            return Ok(await (_service.GetProductById(id)));
         }
 
         [HttpPost]
-        public async Task<ActionResult<Product>> CreateProduct(Product product)
+        public async Task<IActionResult> CreateProduct(ProductDto product)
         {
-            context.Products.Add(product);
-            await context.SaveChangesAsync();
-
-            return product;
+            await _service.CreateProduct(product);
+            return Ok();
         }
 
-        [HttpPut("{id: int}")]
-        public async Task<ActionResult> UpdateProduct(int id, Product product)
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> UpdateProduct(int id, ProductDto productDto)
         {
-            if(product.Id!= id || !ProductExists(id))
+            Console.WriteLine();
+            var existingProduct = await _service.GetProductById(id);
+            if(existingProduct == null || productDto.Id != id)
             {
-                return BadRequest("Product does not exist");
+                return NotFound($"Product with Id {id} not found.");
             }
-            context.Entry(product).State = EntityState.Modified;
-            await context.SaveChangesAsync();
-
-            return NoContent();
+            
+            await _service.UpdateProduct(id, existingProduct);
+            return Ok("Product updated successfully");
         }
 
-        [HttpDelete("{id: int}")]
-        public async Task<ActionResult> DeleteProduct(int id)
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteProduct(int id)
         {
-            var product = await context.Products.FindAsync(id);
+            var existingProduct = await (_service.GetProductById(id));
+            if (existingProduct == null)
+            {
+                return NotFound($"Product with Id {id} not found.");
+            }
 
-            if (product == null) return NotFound();
-
-            context.Products.Remove(product);
-            await context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool ProductExists(int id)
-        {
-            return context.Products.Any(x => x.Id == id);
+            await _service.DeleteProduct(id);
+            return Ok("Product deleted successfully.");
         }
     }
 }
