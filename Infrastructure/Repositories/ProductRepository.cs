@@ -28,6 +28,19 @@ namespace Infrastructure.Repositories
             var product = await _context.Products.FindAsync(id);
             return product;
         }
+        public async Task<List<string>> GetBrands()
+        {
+            return await _context.Products.Select(x => x.Brand)
+                .Distinct()
+                .ToListAsync();
+        }
+
+        public async Task<List<string>> GetTypes()
+        {
+            return await _context.Products.Select(x => x.Type)
+                .Distinct()
+                .ToListAsync();
+        }
         public async Task CreateProduct(Product product)
         {
             await _context.Products.AddAsync(product);
@@ -51,6 +64,7 @@ namespace Infrastructure.Repositories
                 await _context.SaveChangesAsync();
             }
 
-        }       
+        }
+
     }
 }

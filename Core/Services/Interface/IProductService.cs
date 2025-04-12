@@ -9,8 +9,10 @@ namespace Core.Services.Interface
 {
     public interface IProductService
     {
-        Task<IEnumerable<ProductDto>> GetProducts();
+        Task<IEnumerable<ProductDto>> GetProducts(string? brand, string? type, string? sort);
         Task<ProductDto> GetProductById(int id);
+        Task<List<string>> GetBrands();
+        Task<List<string>> GetTypes();
         Task CreateProduct(ProductDto product);
         Task UpdateProduct(int id, ProductDto productDto); 
         Task DeleteProduct(int id);

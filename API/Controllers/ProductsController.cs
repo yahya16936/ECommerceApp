@@ -20,15 +20,27 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProducts()
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProducts(string? brand, string? type, string? sort)
         {
-            return Ok(await _service.GetProducts());
+            return Ok(await _service.GetProducts( brand, type, sort ));
         }
 
         [HttpGet("{id:int}")]
         public async Task<ActionResult<ProductDto>> GetProductById(int id)
         {
             return Ok(await (_service.GetProductById(id)));
+        }
+
+        [HttpGet("brands")]
+        public async Task<ActionResult<IReadOnlyList<string>>> GetBrands()
+        {
+            return Ok(await _service.GetBrands());
+        }
+
+        [HttpGet("types")]
+        public async Task<ActionResult<IReadOnlyList<string>>> GetTypes()
+        {
+            return Ok(await _service.GetTypes());
         }
 
         [HttpPost]

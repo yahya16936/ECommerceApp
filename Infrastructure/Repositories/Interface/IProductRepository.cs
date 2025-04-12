@@ -12,6 +12,8 @@ namespace Infrastructure.Repositories.Interface
     {
         Task<IEnumerable<Product>> GetProducts();
         Task<Product> GetProductById(int id);
+        Task<List<string>> GetBrands();
+        Task<List<string>> GetTypes();
         Task CreateProduct(Product product);
         Task UpdateProduct(int id, Product product);
         Task DeleteProduct(int id);
