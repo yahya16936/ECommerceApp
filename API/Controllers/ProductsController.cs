@@ -22,7 +22,7 @@ namespace API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetProducts(string? brand, string? type, string? sort)
         {
-            return Ok(await _service.GetProducts( brand, type, sort ));
+            return Ok(await _service.GetProducts(brand, type, sort));
         }
 
         [HttpGet("{id:int}")]
@@ -55,25 +55,25 @@ namespace API.Controllers
         {
             Console.WriteLine();
             var existingProduct = await _service.GetProductById(id);
-            if(existingProduct == null || productDto.Id != id)
+            if (existingProduct == null || productDto.Id != id)
             {
                 return NotFound($"Product with Id {id} not found.");
             }
-            
+
             await _service.UpdateProduct(id, existingProduct);
             return Ok("Product updated successfully");
         }
 
         [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteProduct(int id)
+        public async Task<IActionResult> DeleteProduct(ProductDto productDto)
         {
-            var existingProduct = await (_service.GetProductById(id));
+            var existingProduct = await (_service.GetProductById(productDto.Id));
             if (existingProduct == null)
             {
-                return NotFound($"Product with Id {id} not found.");
+                return NotFound($"Product with Id {productDto.Id} not found.");
             }
 
-            await _service.DeleteProduct(id);
+            await _service.DeleteProduct(productDto);
             return Ok("Product deleted successfully.");
         }
     }

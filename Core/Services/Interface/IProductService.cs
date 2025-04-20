@@ -15,6 +15,6 @@ namespace Core.Services.Interface
         Task<List<string>> GetTypes();
         Task CreateProduct(ProductDto product);
         Task UpdateProduct(int id, ProductDto productDto); 
-        Task DeleteProduct(int id);
+        Task DeleteProduct(ProductDto productDto);
     }
 }

@@ -10,73 +10,64 @@ using System.Threading.Tasks;
 using Core.Services.Interface;
 using Infrastructure.Repositories.Interface;
 using Infrastructure.Models;
+using Infrastructure.Data;
+using Infrastructure.Specifications;
 
 namespace Core.Services
 {
     public class ProductService : IProductService
     {
-        private readonly IProductRepository _repository;
+        private readonly IGenericRepository<Product> _productRepository;
         private readonly IMapper _mapper;
 
-        public ProductService(IProductRepository repository, IMapper mapper)
+        public ProductService(IGenericRepository<Product> productRepository, IMapper mapper)
         {
-            _repository = repository;
+            _productRepository = productRepository;
             _mapper = mapper;
         }
         
         public async Task<IEnumerable<ProductDto>> GetProducts(string? brand, string? type, string? sort)
         {
-            var products = await _repository.GetProducts();
+            var spec = new ProductSpecification(brand, type, sort);
 
-            if (!string.IsNullOrWhiteSpace(brand))
-            {
-                products = products.Where(p => p.Brand.Equals(brand, StringComparison.OrdinalIgnoreCase)).ToList();
-            }
-
-            if (!string.IsNullOrWhiteSpace(type))
-            {
-                products = products.Where(p => p.Type.Equals(type, StringComparison.OrdinalIgnoreCase)).ToList();
-            }
-
-            products = sort switch
-            {
-                "priceAsc" => products.OrderBy(x => x.Price),
-                "priceDesc" => products.OrderByDescending(x => x.Price),
-                _ => products.OrderBy(x => x.Name)
-            };
+            var products = await _productRepository.ListAsync(spec);
 
             return _mapper.Map<IEnumerable<ProductDto>>(products);
         }
         public async Task<ProductDto> GetProductById(int id)
         {
-            var product = await _repository.GetProductById(id);
+            var product = await _productRepository.GetByIdAsync(id);
+
             return _mapper.Map<ProductDto>(product);
         }
         public async Task<List<string>> GetBrands()
         {
-            var productsByBrands = await _repository.GetBrands();
-            return (productsByBrands);
+            var spec = new BrandListSpecification();
+
+            return (await _productRepository.ListAsync(spec)).ToList();
         }
 
         public async Task<List<string>> GetTypes()
         {
-            var productsByTypes = await _repository.GetTypes();
-            return (productsByTypes);
+            var spec = new TypeListSpecification();
+
+            return (await _productRepository.ListAsync(spec)).ToList();
         }
         public async Task CreateProduct(ProductDto productDto)
         {
             var product = _mapper.Map<Product>(productDto);
-            await _repository.CreateProduct(product);  
+            _productRepository.Add(product);  
         }
         public async Task UpdateProduct(int id, ProductDto productDto)
         {
             var productEntity = _mapper.Map<Product>(productDto);
-            await _repository.UpdateProduct(id, productEntity);
+            _productRepository.Update(productEntity);
         }
 
-        public async Task DeleteProduct(int id)
+        public async Task DeleteProduct(ProductDto productDto)
         {
-            await _repository.DeleteProduct(id);
+            var productEntity = _mapper.Map<Product>(productDto);
+            _productRepository.Delete(productEntity);
         }
     }
 }
