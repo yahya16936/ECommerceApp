@@ -17,6 +17,7 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 //Core services
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IPaginationService, PaginationService>();
 
 //Infrastructure services
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
