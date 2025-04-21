@@ -12,27 +12,33 @@ using Infrastructure.Repositories.Interface;
 using Infrastructure.Models;
 using Infrastructure.Data;
 using Infrastructure.Specifications;
+using Core.RequestHelpers;
 
 namespace Core.Services
 {
     public class ProductService : IProductService
     {
+        private readonly IPaginationService _paginationService;
         private readonly IGenericRepository<Product> _productRepository;
         private readonly IMapper _mapper;
 
-        public ProductService(IGenericRepository<Product> productRepository, IMapper mapper)
+        public ProductService(IGenericRepository<Product> productRepository,
+            IMapper mapper, IPaginationService paginationService)
         {
             _productRepository = productRepository;
             _mapper = mapper;
+            _paginationService = paginationService;
         }
         
-        public async Task<IEnumerable<ProductDto>> GetProducts(string? brand, string? type, string? sort)
+        public async Task<Pagination<ProductDto>> GetProducts(ProductSpecification spec, ProductSpecParams specParams)
         {
-            var spec = new ProductSpecification(brand, type, sort);
 
-            var products = await _productRepository.ListAsync(spec);
-
-            return _mapper.Map<IEnumerable<ProductDto>>(products);
+            return await _paginationService.CreateAsync<Product, ProductDto>(
+                spec,
+                _productRepository,
+                specParams.PageIndex,
+                specParams.PageSize
+            );
         }
         public async Task<ProductDto> GetProductById(int id)
         {

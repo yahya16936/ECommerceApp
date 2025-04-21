@@ -1,4 +1,6 @@
-﻿using ECommerceAppModels.ViewModels;
+﻿using Core.RequestHelpers;
+using ECommerceAppModels.ViewModels;
+using Infrastructure.Specifications;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +11,7 @@ namespace Core.Services.Interface
 {
     public interface IProductService
     {
-        Task<IEnumerable<ProductDto>> GetProducts(string? brand, string? type, string? sort);
+        Task<Pagination<ProductDto>> GetProducts(ProductSpecification spec, ProductSpecParams specParams);
         Task<ProductDto> GetProductById(int id);
         Task<List<string>> GetBrands();
         Task<List<string>> GetTypes();

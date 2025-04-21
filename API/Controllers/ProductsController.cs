@@ -5,6 +5,8 @@ using Infrastructure.DataContext;
 using Infrastructure.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Infrastructure.Specifications;
+using Core.RequestHelpers;
 
 namespace API.Controllers
 {
@@ -20,9 +22,11 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProducts(string? brand, string? type, string? sort)
+        public async Task<ActionResult<Pagination<ProductDto>>> GetProducts(
+            [FromQuery]ProductSpecParams specParams)
         {
-            return Ok(await _service.GetProducts(brand, type, sort));
+            var spec = new ProductSpecification(specParams);
+            return Ok(await _service.GetProducts(spec, specParams));
         }
 
         [HttpGet("{id:int}")]

@@ -17,6 +17,7 @@ namespace Infrastructure.Data
         void Add(T item);
         void Update(T item);
         void Delete(T item);
+        Task<int> CountAsync(ISpecification<T> spec);
 
     }
 }

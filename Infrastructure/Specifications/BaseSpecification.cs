@@ -17,6 +17,22 @@ namespace Infrastructure.Specifications
 
         public bool IsDistinct { get; private set; }
 
+        public int Take { get; private set; }
+
+        public int Skip { get; private set; }
+
+        public bool IsPagingEnabled { get; private set; }
+
+        public IQueryable<T> ApplyCriteria(IQueryable<T> query)
+        {
+            if (Criteria != null)
+            {
+                query = query.Where(Criteria);
+            }
+
+            return query;
+        }
+
         protected void AddOrderby(Expression<Func<T, object>> orderByExpression)
         {
             OrderBy = orderByExpression;
@@ -29,6 +45,13 @@ namespace Infrastructure.Specifications
         protected void ApplyDistict()
         {
             IsDistinct = true;
+        }
+
+        protected void ApplyPaging(int skip, int take)
+        {
+            Skip = skip;
+            Take = take;
+            IsPagingEnabled = true;
         }
     }
 
