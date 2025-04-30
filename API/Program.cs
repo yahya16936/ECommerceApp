@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Infrastructure.Repositories.Interface;
 using Infrastructure.Repositories;
 using Infrastructure.Data;
+using API.Middleware;
 
 
 
@@ -18,6 +19,7 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 //Core services
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IPaginationService, PaginationService>();
+builder.Services.AddCors();
 
 //Infrastructure services
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
@@ -31,6 +33,10 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
+app.UseMiddleware<ExceptionMiddleware>();
+
+app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod()
+.WithOrigins("http://localhost:4200", "https://localhost:4200"));
 
 app.MapControllers();
 
